@@ -1,0 +1,17 @@
+{application, leviathan_rest,
+ [
+  {description, "RESTish interface to Leviathan"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  sasl,
+                  jiffy,
+                  lager,
+                  erl_cowboy,
+                  recon
+                 ]},
+  {mod, { leviathan_rest_app, []}},
+  {env, []}
+ ]}.
