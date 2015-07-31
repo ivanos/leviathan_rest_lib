@@ -19,4 +19,5 @@ stop(_State) ->
 start_cowboy() ->
     ok = erl_cowboy:routing(?MODULE,
         [
+{"/cen/", lr_cen_handler, []}
         ]).
