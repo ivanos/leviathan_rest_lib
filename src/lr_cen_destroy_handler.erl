@@ -16,7 +16,7 @@ handle(Req, State) ->
 handle(<<"POST">>, Req, State) ->
     {ok, JsonBin, Req2} = cowboy_req:body(Req),
     Cens = [binary_to_list(C) || C <- jiffy:decode(JsonBin)],
-    ?DEBUG("Preparing cens(~p)", [Cens]),
+    ?DEBUG("Destroying cens(~p)", [Cens]),
     % destroy the Cens asynchronously
     run(fun() -> leviathan_cen:destroy(Cens) end),
     {ok, Req2, State};
