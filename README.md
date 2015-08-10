@@ -38,6 +38,7 @@ curl -d @/tmp/cen.json http://<location>:8080/cen
 
 # Example prepare CENs
 Prepares a list of CENS on a host
+
 This creates all artifacts like network namespaces, bridges, interfaces, etc 
 ```
 curl -d '["cen1","cen2","cen3","cen4","cen5"]' http://<location>:8080/cen/prepare
