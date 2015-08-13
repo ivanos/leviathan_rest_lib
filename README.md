@@ -2,15 +2,30 @@
 `leviathan_rest_lib` provides a RESTish interface to the leviathan library 
 functions.
 
-# Example upload CEN file
-Uploads and compiles wiring for CENs described in a CEN file.
+# API
+URI | Method | Body | Description
+--- | ------ | ---- | -----------
+/cen | POST | JSON file | upload JSON file
+/cen/prepare | POST | list of Cen Ids | prepare CENs
+/cen/destroy | POST | list of Cen Ids | undo CENs
+/host/HostId/ContainerId/CenId | PUT | none | add Container to Cen
+/host/HostId/ContainerId/CenId | DELETE | none | remove Container from Cen
+/cen/CenId | PUT | none | create CEN
+/cen/CenId | GET | none | get CEN structure
+/cen/CenId | DELETE | none | remove CEN
 
+## CEN Structure
 ```
-curl -d @/tmp/cen.json http://<location>:8080/cen
+{
+    "cenID": CenId,
+    "contIDs": [ContId1, ContId2, ...],
+    "wiring_type": WiringType
+}
 ```
-(HTTP POST of the CEN file).
+Where `contIDs` is the list of containers in the CEN.  `WiringType` is
+`"bridge"`, `"wire"`, or `null`.
 
-# Example CEN file
+## Example CEN file
 ```
 {"cenList":
  [{
@@ -36,7 +51,9 @@ curl -d @/tmp/cen.json http://<location>:8080/cen
 }
 ```
 
-# Example prepare CENs
+# Examples
+
+## Prepare CENs
 Prepares a list of CENS on a host
 
 This creates all artifacts like network namespaces, bridges, interfaces, etc 
@@ -46,7 +63,7 @@ curl -d '["cen1","cen2","cen3","cen4","cen5"]' http://<location>:8080/cen/prepar
 (HTTP POST of a JSON list of the CENs to prepare).
 
 
-# Example destroy CENs
+## Destroy CENs
 Destroys a list of CENS on a host
 
 This destroy all artifacts like network namespaces, bridges, interfaces, etc 
@@ -55,3 +72,21 @@ curl -d '["cen1","cen2","cen3","cen4","cen5"]' http://<location>:8080/cen/destro
 ```
 (HTTP POST of a JSON list of the CENs to destroy).
 
+
+## Add Container to Cen
+```
+curl -v -X PUT -H "content-type: application/json" http://localhost:8080/host/host1/container1/cen1
+```
+
+## Remove Container from Cen
+```
+curl -v -X DELETE -H "content-type: application/json" http://localhost:8080/host/host1/container1/cen1
+```
+
+## Upload CEN file
+Uploads and compiles wiring for CENs described in a CEN file.
+
+```
+curl -d @/tmp/cen.json http://<location>:8080/cen
+```
+(HTTP POST of the CEN file).
