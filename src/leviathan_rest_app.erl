@@ -20,7 +20,7 @@ start_cowboy() ->
     ok = erl_cowboy:routing(?MODULE,
         [
 {"/cen/", lr_cen_handler, []},
-{"/cen/:cen", lr_cenid_handler, []},
+%{"/cen/:cen", lr_cenid_handler, []},
 % {"/host/:host", lr_host_handler, []},
 % {"/host/:host/:container", lr_container_handler, []},
 {"/host/:host/:container/:cen", lr_container_cen_handler, []},
