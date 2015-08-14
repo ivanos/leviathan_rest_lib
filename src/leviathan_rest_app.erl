@@ -25,5 +25,8 @@ start_cowboy() ->
 % {"/host/:host/:container", lr_container_handler, []},
 {"/host/:host/:container/:cen", lr_container_cen_handler, []},
 {"/cen/prepare", lr_cen_prepare_handler, []},
-{"/cen/destroy", lr_cen_destroy_handler, []}
+{"/cen/destroy", lr_cen_destroy_handler, []},
+{"/cin/", lr_cen_handler, []},
+{"/cin/prepare", lr_cen_prepare_handler, []},
+{"/cin/destroy", lr_cen_destroy_handler, []}
         ]).
