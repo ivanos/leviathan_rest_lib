@@ -46,10 +46,9 @@ options(Req0, State) ->
                                                     <<"content-type">>, Req0),
     {ok, Req1, State}.
 
-resource_exists(Req0, #{hostid := HostId,
-                        containerid := ContId,
+resource_exists(Req0, #{containerid := ContId,
                         cenid := CenId} = State) ->
-    Cen = leviathan_dby:get_cen(HostId, CenId),
+    Cen = leviathan_dby:get_cen(CenId),
     #{contIDs := ContIds} = Cen,
     case {CenId, lists:member(ContId, ContIds)} of
         {null, _} ->
