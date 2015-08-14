@@ -5,6 +5,9 @@ functions.
 # API
 URI | Method | Body | Description
 --- | ------ | ---- | -----------
+/cin | POST | JSON file | upload JSON file
+/cin/prepare | POST | list of Cin Ids | prepare CINs
+/cin/destroy | POST | list of Cin Ids | undo CINs
 /cen | POST | JSON file | upload JSON file
 /cen/prepare | POST | list of Cen Ids | prepare CENs
 /cen/destroy | POST | list of Cen Ids | undo CENs
