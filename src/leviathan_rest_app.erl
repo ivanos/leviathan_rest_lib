@@ -28,5 +28,6 @@ start_cowboy() ->
 {"/cen/:cen", lr_cenid_handler, []},
 {"/cin/", lr_cen_handler, []},
 {"/cin/prepare", lr_cen_prepare_handler, []},
-{"/cin/destroy", lr_cen_destroy_handler, []}
+{"/cin/destroy", lr_cen_destroy_handler, []},
+{"/cpool/", lr_cpool_handler, []}
         ]).
