@@ -5,18 +5,21 @@ functions.
 # API
 URI | Method | Body | Description
 --- | ------ | ---- | -----------
+/cpool | POST | JSON file | upload CPool JSON file
 /cin | POST | JSON file | upload JSON file
 /cin/prepare | POST | list of Cin Ids | prepare CINs
 /cin/destroy | POST | list of Cin Ids | undo CINs
 /cen | POST | JSON file | upload JSON file
+/cen/CenId | PUT | none | create CEN
+/cen/CenId | GET | none | get CEN structure
+/cen/CenId | DELETE | none | remove CEN
 /cen/prepare | POST | list of Cen Ids | prepare CENs
 /cen/destroy | POST | list of Cen Ids | undo CENs
 /host/HostId/ContainerId/CenId | PUT | none | add Container to Cen
 /host/HostId/ContainerId/CenId | DELETE | none | remove Container from Cen
-/cen/CenId | PUT | none | create CEN
-/cen/CenId | GET | none | get CEN structure
-/cen/CenId | DELETE | none | remove CEN
-/cpool | POST | JSON file | upload CPool JSON file
+/host/HostId/ContainerId | GET | none | get Container structure
+/host/HostId/ContainerId | PUT | none | add Container to host
+/host/HostId/ContainerId | DELETE | none | remove Container from host
 
 ## CEN Structure
 ```

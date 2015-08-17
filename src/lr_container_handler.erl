@@ -1,4 +1,4 @@
--module(lr_container_cen_handler).
+-module(lr_container_handler).
 
 -export([init/3,
          rest_init/2,
@@ -18,11 +18,9 @@ init(_Transport, _Req, []) ->
     {upgrade, protocol, cowboy_rest}.
 
 rest_init(Req0, _Opts) ->
-    {Req1, [Host, Container, Cen]} =
-                        lr_cowboy:bindings(Req0, [host, container, cen]),
-    {ok, Req1, #{hostid => binary_to_list(Host),
-                 containerid => binary_to_list(Container),
-                 cenid => binary_to_list(Cen),
+    {Req1, [Host, Container]} = lr_cowboy:bindings(Req0, [host, container]),
+    {ok, Req1, #{contid => binary_to_list(Contatiner),
+                 hostid => Host,
                  exists => false,
                  cen => undefined}}.
 
@@ -33,10 +31,10 @@ allow_missing_post(Req, State) ->
     {false, Req, State}.
 
 known_methods(Req, State) -> 
-    {[<<"OPTIONS">>,<<"PUT">>,<<"DELETE">>], Req, State}.
+    {[<<"OPTIONS">>,<<"GET">>,<<"PUT">>,<<"DELETE">>], Req, State}.
 
 allowed_methods(Req, State) ->
-    {[<<"OPTIONS">>,<<"PUT">>,<<"DELETE">>], Req, State}.
+    {[<<"OPTIONS">>,<<"GET">>,<<"PUT">>,<<"DELETE">>], Req, State}.
 
 content_types_provided(Req, State) ->
     {[{<<"application/json">>, handle_json}], Req, State}.
@@ -46,21 +44,17 @@ options(Req0, State) ->
                                                     <<"content-type">>, Req0),
     {ok, Req1, State}.
 
-resource_exists(Req0, #{containerid := ContId,
-                        cenid := CenId} = State) ->
+resource_exists(Req0, #{cenid := CenId} = State) ->
     Cen = leviathan_dby:get_cen(CenId),
-    #{contIDs := ContIds} = Cen,
-    case {CenId, lists:member(ContId, ContIds)} of
-        {null, _} ->
+    case CenId of
+        null ->
             {false, Req0, State};
         _ ->
             {true, Req0, State#{exists := true, cen := Cen}}
     end.
 
-delete_resource(Req0, #{hostid := HostId,
-                        containerid := ContainerId,
-                        cenid := CenId} = State) ->
-    ok = leviathan_cen:remove_container_from_cen(HostId, ContainerId, CenId),
+delete_resource(Req0, #{cenid := CenId} = State) ->
+    ok = leviathan_cen:destroy_cen(CenId),
     Req1 = set_cross_domain(Req0),
     {true, Req1, State}.
 
@@ -70,13 +64,14 @@ content_types_accepted(Req, State) ->
 handle_json(Req0, State) ->
     {Method, Req1} = cowboy_req:method(Req0),
     handle_json_method(Req1, State, Method).
-%
-handle_json_method(Req, State, <<"GET">>) ->
+
+handle_json_method(Req, State = #{exists := false}, <<"GET">>) ->
     {false, Req, State};
-handle_json_method(Req0, #{hostid := HostId,
-                          containerid := ContainerId,
-                          cenid := CenId} = State, <<"PUT">>) ->
-    ok = leviathan_cen:add_container_to_cen(HostId, ContainerId, CenId),
+handle_json_method(Req0, State = #{exists := true, cen := Cen}, <<"GET">>) ->
+    Req1 = set_cross_domain(Req0),
+    {lr_encode:to_json(Cen), Req1, State};
+handle_json_method(Req0, #{cenid := CenId} = State, <<"PUT">>) ->
+    ok = leviathan_cen:new_cen(CenId),
     Req1 = set_cross_domain(Req0),
     Req2 = cowboy_req:set_resp_body(<<"true">>, Req1),
     {true, Req2, State}.
