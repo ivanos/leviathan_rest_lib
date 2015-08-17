@@ -16,6 +16,7 @@ URI | Method | Body | Description
 /cen/CenId | PUT | none | create CEN
 /cen/CenId | GET | none | get CEN structure
 /cen/CenId | DELETE | none | remove CEN
+/cpool | POST | JSON file | upload CPool JSON file
 
 ## CEN Structure
 ```
@@ -93,3 +94,34 @@ Uploads and compiles wiring for CENs described in a CEN file.
 curl -d @/tmp/cen.json http://<location>:8080/cen
 ```
 (HTTP POST of the CEN file).
+
+
+# CPools
+
+## CPool Structure
+
+```
+{
+ "cpoolID": <CPoolId>,
+ "type": <ContainerType>,
+ "start_with": <Number of ContainerType to run>,
+ "cins":[{"cinID":<CinID>,"default_route":<optional "true"|"false">},...]
+ }
+```
+
+## Example CPool JSON File
+```
+{"cpoolList":
+ [
+     {"cpoolID":"pool1",
+      "type":"ubuntu:14.04",
+      "start_with": 3,
+      "cins":[{"cinID":"cen1","default_route":"true"},
+	      {"cinID":"cen2"}]},
+     {"cpoolID":"pool2",
+      "type":"ubuntu:14.04",
+      "start_with": 3,
+      "cins":[{"cinID":"cen2"}]}
+ ]
+}
+```
