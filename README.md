@@ -16,6 +16,9 @@ URI | Method | Body | Description
 /cen/CenId | PUT | none | create CEN
 /cen/CenId | GET | none | get CEN structure
 /cen/CenId | DELETE | none | remove CEN
+/host/HostId/ContainerId | GET | none | get Container structure
+/host/HostId/ContainerId | PUT | none | add Container to host
+/host/HostId/ContainerId | DELETE | none | remove Container from host
 
 ## CEN Structure
 ```
