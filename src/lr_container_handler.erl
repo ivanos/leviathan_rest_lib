@@ -19,7 +19,7 @@ init(_Transport, _Req, []) ->
 
 rest_init(Req0, _Opts) ->
     {Req1, [Host, Container]} = lr_cowboy:bindings(Req0, [host, container]),
-    {ok, Req1, #{contid => binary_to_list(Contatiner),
+    {ok, Req1, #{contid => binary_to_list(Container),
                  hostid => Host,
                  exists => false,
                  cen => undefined}}.
