@@ -13,7 +13,8 @@ handle(Req, State) ->
 
 handle(<<"POST">>, Req, State) ->
     {ok, JsonBin, Req2} = cowboy_req:body(Req),
-    leviathan_dby:import_binary(<<"host1">>, JsonBin),
+    LM = leviathan_cen:decode_binary(JsonBin),
+    ok = leviathan_dby:import_cens(<<"host1">>, LM),
     {ok, Req2, State};
 handle(_, Req, State) ->
     {ok, Req2} = cowboy_req:reply(405, [{<<"content-type">>, <<"text/plain">>}],
