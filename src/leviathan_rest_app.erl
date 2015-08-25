@@ -10,7 +10,6 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-    ok = start_docker_event_listener(),
     ok = start_cowboy(),
     leviathan_rest_sup:start_link().
 
@@ -35,6 +34,3 @@ start_cowboy() ->
         ]).
 
 
-start_docker_event_listener()->
-    io:format("starting docker event listener...~n"),
-    leviathan_docker_events:event_listener().
