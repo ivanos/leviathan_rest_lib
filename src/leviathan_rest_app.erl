@@ -11,6 +11,7 @@
 
 start(_StartType, _StartArgs) ->
     ok = start_cowboy(),
+    start_docker_event_listener(),
     leviathan_rest_sup:start_link().
 
 stop(_State) ->
@@ -31,3 +32,8 @@ start_cowboy() ->
 {"/cin/destroy", lr_cen_destroy_handler, []},
 {"/cpool/", lr_cpool_handler, []}
         ]).
+
+
+start_docker_event_listener()->
+    io:format("starting docker event listener...~n"),
+    leviathan_docker_events:event_listener().
