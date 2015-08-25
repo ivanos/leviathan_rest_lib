@@ -10,9 +10,9 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-    ok = start_docker_event_listener(),
     ok = start_cowboy(),
-    leviathan_rest_sup:start_link().
+    leviathan_rest_sup:start_link(),
+    ok = start_docker_event_listener().
 
 stop(_State) ->
     ok.
