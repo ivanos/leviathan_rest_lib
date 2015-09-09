@@ -96,10 +96,12 @@ execute_decoded(#{<<"type">> := <<"start">>,
           <<"sequence">> := Sequence,
           <<"monitor">> := <<"CIN">>,
           <<"parameters">> := Parameters}, State) ->
+    % XXX check that monitorID is *not* included
     % create new monitor
     MonitorId = monitor_id(),
-    {ReplyState, State1} = create_subscription(Parameters, State),
-    {monitor_start_response(Sequence, MonitorId, ReplyState), State1};
+    State1 = State#{monitor_id := MonitorId},
+    {ReplyState, State2} = create_subscription(Parameters, State1),
+    {monitor_start_response(Sequence, MonitorId, ReplyState), State2};
 execute_decoded(#{<<"sequence">> := Sequence}, State) ->
     {error_reply(Sequence, <<"invalid request">>), State}.
 
