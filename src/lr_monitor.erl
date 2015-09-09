@@ -129,13 +129,15 @@ create_subscription(Parameters = #{<<"cinID">> := CinId}, State) ->
     
 % ipaddr <-> in endpoint <-> container <-> CEN
 % XXX look for CENs for now
+% XXX need endpoint in the correct CEN - for now use the alias.
 search_fn(#{<<"cinID">> := CinId, <<"container_tag">> := Tag}) ->
     DbyCinId = leviathan_dby:dby_cen_id(CinId),
     % only containers with matching tag
     fun(_, ?MATCH_IPADDR(IpAddr),
-                [{_, ?MATCH_IN_ENDPOINT(_, _), _},
+                [{_, ?MATCH_IN_ENDPOINT(_, Alias), _},
                  {_, ContainerMD = ?MATCH_CONTAINER(ContId), _},
-                 {FnDbyCinId, _, _}], Acc) when FnDbyCinId == DbyCinId ->
+                 {FnDbyCinId, _, _}], Acc) when Alias == CinId,
+                                                FnDbyCinId == DbyCinId ->
         case container_tag(ContainerMD) of
             Tag ->
                 {continue, [#{<<"containerID">> => ContId,
@@ -151,9 +153,10 @@ search_fn(#{<<"cinID">> := CinId}) ->
     DbyCinId = leviathan_dby:dby_cen_id(CinId),
     % any container, tag is optional
     fun(_, ?MATCH_IPADDR(IpAddr),
-                [{_, ?MATCH_IN_ENDPOINT(_, _), _},
+                [{_, ?MATCH_IN_ENDPOINT(_, Alias), _},
                  {_, ContMetadata = ?MATCH_CONTAINER(ContId), _},
-                 {FnDbyCinId, _, _}], Acc) when FnDbyCinId == DbyCinId ->
+                 {FnDbyCinId, _, _}], Acc) when Alias == CinId,
+                                                FnDbyCinId == DbyCinId ->
         Tag = container_tag(ContMetadata),
         {continue, [#{<<"containerID">> => ContId,
                       <<"ipaddress">> => IpAddr,
