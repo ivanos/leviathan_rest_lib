@@ -30,7 +30,9 @@ start_cowboy() ->
 {"/cin/", lr_cen_handler, []},
 {"/cin/prepare", lr_cen_prepare_handler, []},
 {"/cin/destroy", lr_cen_destroy_handler, []},
-{"/cpool/", lr_cpool_handler, []}
+{"/cpool/", lr_cpool_handler, []},
+{"/leviathan/monitor", lr_monitor_handler, []},
+{"/leviathan/monitor/test/[...]", cowboy_static, {priv_dir, leviathan_rest, "static"}}
         ]).
 
 
