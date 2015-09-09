@@ -9,8 +9,6 @@
 %% API Function Exports
 %% ------------------------------------------------------------------
 
--compile(export_all).
-
 -export([start_link/1,
          do/2,
          stop/1]).
