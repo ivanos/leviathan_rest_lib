@@ -70,7 +70,7 @@ handle_json_method(Req0, State = #{exists := true, cen := Cen}, <<"GET">>) ->
     Req1 = set_cross_domain(Req0),
     {lr_encode:to_json(Cen), Req1, State};
 handle_json_method(Req0, #{cenid := CenId} = State, <<"PUT">>) ->
-    ok = leviathan_cen:new_cen(CenId),
+    ok = leviathan_cen:new_cen("host1", CenId),
     Req1 = set_cross_domain(Req0),
     Req2 = cowboy_req:set_resp_body(<<"true">>, Req1),
     {true, Req2, State}.
