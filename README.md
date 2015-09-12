@@ -193,7 +193,7 @@ The messages are:
 ```
 {
     "type":"event",
-    "monitorID":"MonitorID"
+    "monitorID":"MonitorID",
     "event":"create",
     "message":[
         {
