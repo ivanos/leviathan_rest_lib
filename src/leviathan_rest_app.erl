@@ -20,20 +20,19 @@ stop(_State) ->
 start_cowboy() ->
     ok = erl_cowboy:routing(?MODULE,
         [
-{"/cen/", lr_cen_handler, []},
-{"/host/:host/:container/:cen", lr_container_cen_handler, []},
-{"/host/:host/:container", lr_container_handler, []},
-% {"/host/:host", lr_host_handler, []},
-{"/cen/prepare", lr_cen_prepare_handler, []},
-{"/cen/destroy", lr_cen_destroy_handler, []},
-{"/cen/:cen", lr_cenid_handler, []},
-{"/cin/", lr_cen_handler, []},
-{"/cin/prepare", lr_cen_prepare_handler, []},
-{"/cin/destroy", lr_cen_destroy_handler, []},
-{"/cpool/", lr_cpool_handler, []},
-{"/switch/", lr_switch_handler, []},
-{"/leviathan/monitor", lr_monitor_handler, []},
-{"/leviathan/monitor/test/[...]", cowboy_static, {priv_dir, leviathan_rest, "static"}}
+         {"/cen/import", lr_cen_handler, #{handle_action => import}},
+         {"/cen/make", lr_cen_handler, #{handle_action => make}},
+         {"/cen/destroy", lr_cen_handler, #{handle_action => destroy}},
+         {"/host/:host/:container/:cen", lr_container_cen_handler, []},
+         {"/host/:host/:container", lr_container_handler, []},
+         {"/cen/:cen", lr_cenid_handler, []},
+         {"/cin/import", lr_cin_handler, #{handle_action => import}},
+         {"/cin/make", lr_cin_handler, #{handle_action => make}},
+         {"/cin/destroy", lr_cin_handler, #{handle_action => destroy}},
+         {"/cpool/", lr_cpool_handler, []},
+         {"/switch/", lr_switch_handler, []},
+         {"/leviathan/monitor", lr_monitor_handler, []},
+         {"/leviathan/monitor/test/[...]", cowboy_static, {priv_dir, leviathan_rest, "static"}}
         ]).
 
 
