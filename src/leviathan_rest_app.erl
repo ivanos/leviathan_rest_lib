@@ -34,18 +34,12 @@ start_cowboy() ->
 
 cen_routes() ->
     [
-     {"/cen/import", lr_cen_handler, #{handle_action => import}},
-     {"/cen/make", lr_cen_handler, #{handle_action => make}},
-     {"/cen/destroy", lr_cen_handler, #{handle_action => destroy}},
+     {"/cen/:action", lr_cen_handler, []},
      {"/cen/:cen", lr_cenid_handler, []}
     ].
 
 cin_routes() ->
-    [
-     {"/cin/import", lr_cin_handler, #{handle_action => import}},
-     {"/cin/make", lr_cin_handler, #{handle_action => make}},
-     {"/cin/destroy", lr_cin_handler, #{handle_action => destroy}}
-    ].
+    [{"/cin/:action", lr_cin_handler, #{handle_action => import}}].
 
 container_routes() ->
     [
