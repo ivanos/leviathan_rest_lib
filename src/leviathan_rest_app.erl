@@ -17,23 +17,46 @@ start(_StartType, _StartArgs) ->
 stop(_State) ->
     ok.
 
+%% ===================================================================
+%% Internal functions
+%% ===================================================================
+
 start_cowboy() ->
     ok = erl_cowboy:routing(?MODULE,
-        [
-{"/cen/", lr_cen_handler, []},
-{"/host/:host/:container/:cen", lr_container_cen_handler, []},
-{"/host/:host/:container", lr_container_handler, []},
-% {"/host/:host", lr_host_handler, []},
-{"/cen/prepare", lr_cen_prepare_handler, []},
-{"/cen/destroy", lr_cen_destroy_handler, []},
-{"/cen/:cen", lr_cenid_handler, []},
-{"/cin/", lr_cen_handler, []},
-{"/cin/prepare", lr_cen_prepare_handler, []},
-{"/cin/destroy", lr_cen_destroy_handler, []},
-{"/cpool/", lr_cpool_handler, []},
-{"/switch/", lr_switch_handler, []},
-{"/leviathan/monitor", lr_monitor_handler, []},
-{"/leviathan/monitor/test/[...]", cowboy_static, {priv_dir, leviathan_rest, "static"}}
-        ]).
+                            lists:flatten([
+                                           cen_routes(),
+                                           cin_routes(),
+                                           container_routes(),
+                                           monitor_routes(),
+                                           cpool_routes(),
+                                           switch_routes()
+                                          ])).
+
+cen_routes() ->
+    [
+     {"/cen/:action", lr_cen_handler, []},
+     {"/cen/:cen", lr_cenid_handler, []}
+    ].
+
+cin_routes() ->
+    [{"/cin/:action", lr_cin_handler, #{handle_action => import}}].
+
+container_routes() ->
+    [
+     {"/host/:host/:container/:cen", lr_container_cen_handler, []},
+     {"/host/:host/:container", lr_container_handler, []}
+    ].
+
+monitor_routes() ->
+    [
+     {"/leviathan/monitor", lr_monitor_handler, []},
+     {"/leviathan/monitor/test/[...]", cowboy_static, {priv_dir, leviathan_rest, "static"}}
+    ].
+
+cpool_routes() ->
+    [{"/cpool/", lr_cpool_handler, []}].
+
+switch_routes() ->
+    [{"/switch/", lr_switch_handler, []}].
 
 

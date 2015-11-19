@@ -6,15 +6,15 @@ functions.
 URI | Method | Body | Description
 --- | ------ | ---- | -----------
 /cpool | POST | JSON file | upload CPool JSON file
-/cin | POST | JSON file | upload JSON file
-/cin/prepare | POST | list of Cin Ids | prepare CINs
-/cin/destroy | POST | list of Cin Ids | undo CINs
-/cen | POST | JSON file | upload JSON file
+/cen/import | POST | JSON file | upload JSON file describing CEN
+/cen/make | POST | list of Cin Ids | make CINs
+/cen/destroy | POST | list of Cin Ids | undo make CINs
+/cin/import | POST | JSON map with CINs pointing to list of CENs | create CINs spanning CENs
+/cin/make | POST | list of CINs | make CINs
+/cin/destroy | POST | list of CINs | undo make CINs
 /cen/CenId | PUT | none | create CEN
 /cen/CenId | GET | none | get CEN structure
 /cen/CenId | DELETE | none | remove CEN
-/cen/prepare | POST | list of Cen Ids | prepare CENs
-/cen/destroy | POST | list of Cen Ids | undo CENs
 /host/HostId/ContainerId/CenId | PUT | none | add Container to Cen
 /host/HostId/ContainerId/CenId | DELETE | none | remove Container from Cen
 /host/HostId/ContainerId | GET | none | get Container structure
@@ -58,22 +58,34 @@ Where `contIDs` is the list of containers in the CEN.  `WiringType` is
 }
 ```
 
+## Example CIN file
+```
+{
+  "cin1" : ["cen1"],
+  "cin2" : ["cen2"]
+}
+```
+
 ## Examples
 
-### Prepare CENs
-Prepares a list of CENS on a host
+### Upload CEN file
+Uploads and creates internal and Dobby representation of CENs described in a CEN file.
 
-This creates all artifacts like network namespaces, bridges, interfaces, etc 
 ```
-curl -d '["cen1","cen2","cen3","cen4","cen5"]' http://<location>:8080/cen/prepare
+curl -d @/tmp/cen.json http://<location>:8080/cen/import
 ```
-(HTTP POST of a JSON list of the CENs to prepare).
+(HTTP POST of the CEN file).
+
+### Make CENs
+Creates all artifacts like network namespaces, bridges, interfaces, etc. for the CENs on a host.
+```
+curl -d '["cen1","cen2","cen3","cen4","cen5"]' http://<location>:8080/cen/make
+```
+(HTTP POST of a JSON list of the CENs to make).
 
 
 ### Destroy CENs
-Destroys a list of CENS on a host
-
-This destroy all artifacts like network namespaces, bridges, interfaces, etc 
+Destroys all artifacts like network namespaces, bridges, interfaces, etc.
 ```
 curl -d '["cen1","cen2","cen3","cen4","cen5"]' http://<location>:8080/cen/destroy
 ```
@@ -90,14 +102,26 @@ curl -v -X PUT -H "content-type: application/json" http://localhost:8080/host/ho
 curl -v -X DELETE -H "content-type: application/json" http://localhost:8080/host/host1/container1/cen1
 ```
 
-### Upload CEN file
-Uploads and compiles wiring for CENs described in a CEN file.
+### Create CINs
+Creates internal and Dobby representation of CINs.
 
-```
-curl -d @/tmp/cen.json http://<location>:8080/cen
-```
-(HTTP POST of the CEN file).
+`curl -d @/tmp/cin.json http://localhost:8080/cin/import`
 
+(HTTP POST of a JSON object with mappings between CINs and CENs)
+
+### Make CINs
+Assigns IP addresses to the previously created network artifacts with the `/cen/make`
+```
+curl -d '["cin1", "cin2"]' http://<location>:8080/cin/make
+```
+(HTTP POST of a JSON list of the CINs to make).
+
+### Destroy CINs
+Destroys the addressing created by `/cin/make`
+```
+curl -d '["cin1", "cin2"]' http://<location>:8080/cin/destroy
+```
+(HTTP POST of a JSON list of the CINs to destroy).
 
 ## CPools
 

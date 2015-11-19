@@ -1,4 +1,4 @@
--module(lr_cen_handler).
+-module(lr_cin_handler).
 
 -behaviour(cowboy_http_handler).
 
@@ -33,26 +33,27 @@ handle(_, Req0, State) ->
                                   <<"Method not allowed\n">>, Req0),
     {ok, Req1, State}.
 
-handle_action(<<"import">>, Req, State) ->
-    {ok, JsonBin, Req2} = cowboy_req:body(Req),
-    LM = leviathan_cen:decode_binary(JsonBin),
-    ok = leviathan_dby:import_cens(<<"host1">>, LM),
-    ok = leviathan_cen_store:import_cens(<<"host1">>, LM),
-    {ok, Req2, State};
-handle_action(<<"make">>, Req, State) ->
-    {ok, JsonBin, Req2} = cowboy_req:body(Req),
-    Cens = [binary_to_list(C) || C <- jiffy:decode(JsonBin)],
-    ?DEBUG("Preparing CENs(~p)", [Cens]),
-    %% prepare the Cens asynchronously
-    run(fun() -> leviathan_cen:prepare(Cens) end),
-    {ok, Req2, State};
-handle_action(<<"destroy">>, Req, State) ->
-    {ok, JsonBin, Req2} = cowboy_req:body(Req),
-    Cens = [binary_to_list(C) || C <- jiffy:decode(JsonBin)],
-    ?DEBUG("Destroying CENs(~p)", [Cens]),
-    run(fun() -> leviathan_cen:destroy(Cens) end),
-    {ok, Req2, State}.
 
+handle_action(<<"import">>, Req0, State) ->
+    {ok, JsonBin, Req1} = cowboy_req:body(Req0),
+    CinsToCensBin = jiffy:decode(JsonBin, [return_maps]),
+    ?DEBUG("Importing CINs(~p)", [CinsToCensBin]),
+    CinLM = leviathan_cin:build_cins(json_bin_to_list(CinsToCensBin)),
+    leviathan_dby:import_cins(<<"host1">>, CinLM),
+    leviathan_cin_store:import_cins(<<"host1">>, CinLM),
+    {ok, Req1, State};
+handle_action(<<"make">>, Req0, State) ->
+    {ok, JsonBin, Req1} = cowboy_req:body(Req0),
+    Cins = [binary_to_list(C) || C <- jiffy:decode(JsonBin)],
+    ?DEBUG("Making CINs(~p)", [Cins]),
+    run(fun() -> leviathan_cin:prepare(Cins) end),
+    {ok, Req1, State};
+handle_action(<<"destroy">>, Req0, State) ->
+    {ok, JsonBin, Req1} = cowboy_req:body(Req0),
+    Cins = [binary_to_list(C) || C <- jiffy:decode(JsonBin)],
+    ?DEBUG("Destroying CINs(~p)", [Cins]),
+    run(fun() -> leviathan_cin:destroy(Cins) end),
+    {ok, Req1, State}.
 
 %% execute asynchronously. catch and log errors.
 run(Fn) ->
@@ -65,3 +66,11 @@ run(Fn) ->
                       ?WARNING("run error: ~p", [Error])
               end
       end).
+
+json_bin_to_list(BinMap) ->
+    Fn = fun(K, V, Acc) ->
+                 maps:put(binary_to_list(K),
+                          lists:map(fun binary_to_list/1, V),
+                          Acc)
+         end,
+    maps:fold(Fn, #{}, BinMap).
