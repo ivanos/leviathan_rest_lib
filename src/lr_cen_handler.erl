@@ -37,7 +37,7 @@ handle_action(<<"import">>, Req0, State) ->
     {ok, JsonBin, Req1} = cowboy_req:body(Req0),
     LM = leviathan_cen:decode_binary(JsonBin),
     ok = leviathan_dby:import_cens(<<"host1">>, LM),
-    ok = leviathan_cen_store:import_cens(<<"host1">>, LM),
+    ok = leviathan_cen_store:import_cens_in_cluster(<<"host1">>, LM),
     {ok, Req1, State};
 handle_action(<<"make">>, Req0, State) ->
     {ok, JsonBin, Req1} = cowboy_req:body(Req0),
