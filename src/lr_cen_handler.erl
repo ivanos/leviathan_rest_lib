@@ -33,25 +33,25 @@ handle(_, Req0, State) ->
                                   <<"Method not allowed\n">>, Req0),
     {ok, Req1, State}.
 
-handle_action(<<"import">>, Req, State) ->
-    {ok, JsonBin, Req2} = cowboy_req:body(Req),
+handle_action(<<"import">>, Req0, State) ->
+    {ok, JsonBin, Req1} = cowboy_req:body(Req0),
     LM = leviathan_cen:decode_binary(JsonBin),
     ok = leviathan_dby:import_cens(<<"host1">>, LM),
     ok = leviathan_cen_store:import_cens(<<"host1">>, LM),
-    {ok, Req2, State};
-handle_action(<<"make">>, Req, State) ->
-    {ok, JsonBin, Req2} = cowboy_req:body(Req),
+    {ok, Req1, State};
+handle_action(<<"make">>, Req0, State) ->
+    {ok, JsonBin, Req1} = cowboy_req:body(Req0),
     Cens = [binary_to_list(C) || C <- jiffy:decode(JsonBin)],
     ?DEBUG("Preparing CENs(~p)", [Cens]),
     %% prepare the Cens asynchronously
     run(fun() -> leviathan_cen:prepare(Cens) end),
-    {ok, Req2, State};
-handle_action(<<"destroy">>, Req, State) ->
-    {ok, JsonBin, Req2} = cowboy_req:body(Req),
+    {ok, Req1, State};
+handle_action(<<"destroy">>, Req0, State) ->
+    {ok, JsonBin, Req1} = cowboy_req:body(Req0),
     Cens = [binary_to_list(C) || C <- jiffy:decode(JsonBin)],
     ?DEBUG("Destroying CENs(~p)", [Cens]),
     run(fun() -> leviathan_cen:destroy(Cens) end),
-    {ok, Req2, State}.
+    {ok, Req1, State}.
 
 
 %% execute asynchronously. catch and log errors.
