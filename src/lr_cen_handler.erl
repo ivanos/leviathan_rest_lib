@@ -44,7 +44,7 @@ handle_action(<<"make">>, Req0, State) ->
     Cens = [binary_to_list(C) || C <- jiffy:decode(JsonBin)],
     ?DEBUG("Preparing CENs(~p)", [Cens]),
     %% prepare the Cens asynchronously
-    run(fun() -> leviathan_cen:prepare(Cens) end),
+    run(fun() -> leviathan_cen:prepare_in_cluster(Cens) end),
     {ok, Req1, State};
 handle_action(<<"destroy">>, Req0, State) ->
     {ok, JsonBin, Req1} = cowboy_req:body(Req0),
