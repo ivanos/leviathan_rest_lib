@@ -40,13 +40,13 @@ handle_action(<<"import">>, Req0, State) ->
     ?DEBUG("Importing CINs(~p)", [CinsToCensBin]),
     CinLM = leviathan_cin:build_cins(json_bin_to_list(CinsToCensBin)),
     leviathan_dby:import_cins(<<"host1">>, CinLM),
-    leviathan_cin_store:import_cins(<<"host1">>, CinLM),
+    leviathan_cin_store:import_cins_in_cluster(<<"host1">>, CinLM),
     {ok, Req1, State};
 handle_action(<<"make">>, Req0, State) ->
     {ok, JsonBin, Req1} = cowboy_req:body(Req0),
     Cins = [binary_to_list(C) || C <- jiffy:decode(JsonBin)],
     ?DEBUG("Making CINs(~p)", [Cins]),
-    run(fun() -> leviathan_cin:prepare(Cins) end),
+    run(fun() -> leviathan_cin:prepare_in_cluster(Cins) end),
     {ok, Req1, State};
 handle_action(<<"destroy">>, Req0, State) ->
     {ok, JsonBin, Req1} = cowboy_req:body(Req0),
