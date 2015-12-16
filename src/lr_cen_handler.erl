@@ -50,7 +50,7 @@ handle_action(<<"destroy">>, Req0, State) ->
     {ok, JsonBin, Req1} = cowboy_req:body(Req0),
     Cens = [binary_to_list(C) || C <- jiffy:decode(JsonBin)],
     ?DEBUG("Destroying CENs(~p)", [Cens]),
-    run(fun() -> leviathan_cen:destroy(Cens) end),
+    run(fun() -> leviathan_cen:destroy_in_cluster(Cens) end),
     {ok, Req1, State}.
 
 

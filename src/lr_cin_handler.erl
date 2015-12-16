@@ -52,7 +52,7 @@ handle_action(<<"destroy">>, Req0, State) ->
     {ok, JsonBin, Req1} = cowboy_req:body(Req0),
     Cins = [binary_to_list(C) || C <- jiffy:decode(JsonBin)],
     ?DEBUG("Destroying CINs(~p)", [Cins]),
-    run(fun() -> leviathan_cin:destroy(Cins) end),
+    run(fun() -> leviathan_cin:destroy_in_cluster(Cins) end),
     {ok, Req1, State}.
 
 %% execute asynchronously. catch and log errors.
