@@ -22,24 +22,31 @@ stop(_State) ->
 %% ===================================================================
 
 start_cowboy() ->
+    CallbackModule = case application:get_env(leviathan_rest,
+                                              callback_module) of
+                         undefined ->
+                             error(no_callback_module);
+                         {ok, M} ->
+                             M
+                     end,
     ok = erl_cowboy:routing(?MODULE,
                             lists:flatten([
-                                           cen_routes(),
-                                           cin_routes(),
+                                           cen_routes(CallbackModule),
+                                           cin_routes(CallbackModule),
                                            container_routes(),
                                            monitor_routes(),
                                            cpool_routes(),
                                            switch_routes()
                                           ])).
 
-cen_routes() ->
+cen_routes(CallbackModule) ->
     [
-     {"/cen/:action", lr_cen_handler, []},
+     {"/cen/:action", lr_cen_handler, [CallbackModule]},
      {"/cen/:cen", lr_cenid_handler, []}
     ].
 
-cin_routes() ->
-    [{"/cin/:action", lr_cin_handler, #{handle_action => import}}].
+cin_routes(CallbackModule) ->
+    [{"/cin/:action", lr_cin_handler, [CallbackModule]}].
 
 container_routes() ->
     [
