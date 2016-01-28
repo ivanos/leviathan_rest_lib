@@ -6,12 +6,14 @@
 
 -include("leviathan_rest_logger.hrl").
 
+-record(state, {mod :: atom()}).
+
 %% ===================================================================
 %% Handler callbacks
 %% ===================================================================
 
-init(_, Req, Opts) ->
-    {ok, Req, Opts}.
+init(_, Req, [CallbackModule]) ->
+    {ok, Req, #state{mod = CallbackModule}}.
 
 handle(Req0, State) ->
     {Method, Req1} = cowboy_req:method(Req0),
@@ -36,23 +38,17 @@ handle(_, Req0, State) ->
 
 handle_action(<<"import">>, Req0, State) ->
     {ok, JsonBin, Req1} = cowboy_req:body(Req0),
-    CinsToCensBin = jiffy:decode(JsonBin, [return_maps]),
-    ?DEBUG("Importing CINs(~p)", [CinsToCensBin]),
-    CinLM = leviathan_cin:build_cins(json_bin_to_list(CinsToCensBin)),
-    leviathan_dby:import_cins(<<"host1">>, CinLM),
-    leviathan_cin_store:import_cins_in_cluster(<<"host1">>, CinLM),
+    (State#state.mod):import_cins(JsonBin),
     {ok, Req1, State};
 handle_action(<<"make">>, Req0, State) ->
     {ok, JsonBin, Req1} = cowboy_req:body(Req0),
     Cins = [binary_to_list(C) || C <- jiffy:decode(JsonBin)],
-    ?DEBUG("Making CINs(~p)", [Cins]),
-    run(fun() -> leviathan_cin:prepare_in_cluster(Cins) end),
+    (State#state.mod):make_cins(Cins),
     {ok, Req1, State};
 handle_action(<<"destroy">>, Req0, State) ->
     {ok, JsonBin, Req1} = cowboy_req:body(Req0),
     Cins = [binary_to_list(C) || C <- jiffy:decode(JsonBin)],
-    ?DEBUG("Destroying CINs(~p)", [Cins]),
-    run(fun() -> leviathan_cin:destroy_in_cluster(Cins) end),
+    (State#state.mod):destroy_cins(Cins),
     {ok, Req1, State}.
 
 %% execute asynchronously. catch and log errors.
@@ -66,11 +62,3 @@ run(Fn) ->
                       ?WARNING("run error: ~p", [Error])
               end
       end).
-
-json_bin_to_list(BinMap) ->
-    Fn = fun(K, V, Acc) ->
-                 maps:put(binary_to_list(K),
-                          lists:map(fun binary_to_list/1, V),
-                          Acc)
-         end,
-    maps:fold(Fn, #{}, BinMap).
